@@ -1,0 +1,290 @@
+---
+title: "Data Science Capstone: Milestone Report"
+author: "Farah M"
+date: "11/29/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+
+This is a milestone report for the Capstone Project of the John Hopkins University Data Science Specialization. The objective of this report is to:
+
+1. Demonstrate that the data has been downloaded and successfully loaded.
+2. Create a basic report of summary statistics about the data sets:
+    * Word counts, line counts
+    * Plots to illustrate features of the data
+3. Report any interesting findings from the initial exploratory analysis of the data sets.
+4. Briefly summarize next steps for creating the prediction algorithm and Shiny app.
+
+## Loading packages
+```{r libraries}
+suppressPackageStartupMessages({
+    library(tidyverse)
+    library(stringi)
+    library(tm)
+    library(ngram)
+    library(wordcloud)
+    library(RWeka)})
+```
+
+## Loading the data
+```{r load data}
+# File connections 
+blogfile <- "./data/final/en_US/en_US.blogs.txt"
+newsfile <- "./data/final/en_US/en_US.news.txt"
+twitterfile <- "./data/final/en_US/en_US.twitter.txt"
+
+# Read in data
+blogData <- readLines(blogfile, skipNul = TRUE, warn = FALSE)
+newsData <- readLines(newsfile, skipNul = TRUE, warn = FALSE)
+twitterData <- readLines(twitterfile, skipNul = TRUE, warn = FALSE)
+```
+
+
+## Summary Statistics of the Data Sets
+```{r}
+# Getting files sizes
+blogSize   <- round(file.size(blogfile) / (2^20))
+newsSize    <- round(file.size(newsfile) / (2^20))
+twitterSize <- round(file.size(twitterfile) / (2^20))
+fileSizeMB <- c(blogSize, newsSize, twitterSize)
+
+
+# Number of lines in the files
+numLines <- sapply(list(blogData, newsData, twitterData), length)
+
+# Number of characters per file
+numChars <- sapply(list(nchar(blogData), nchar(newsData), nchar(twitterData)), sum)
+
+# Length of longest lines in each file
+numCharsLines <- sapply(list(nchar(blogData), nchar(newsData), nchar(twitterData)), max)
+
+# Number of words per file
+numWords <- sapply(list(stri_count_words(blogData), stri_count_words(newsData), stri_count_words(twitterData)), sum)
+
+
+summaryStats <- data.frame(
+    File = c("Blog Data", "News Data", "Twitter Data"),
+    File_Size = paste(fileSizeMB, " MB"),
+    Lines = numLines,
+    Characters = numChars,
+    Max_Char_Lines = numCharsLines,
+    Words = numWords
+)
+
+summaryStats
+```
+
+From the above summary, we note that the blog data file is largest file, but it has the fewest number of lines, while the Twitter data file is the smallest but has the most number of lines. This is not surprising as most Tweets are within the previous Tweet limit of 140 characters. We can also note that the blog data also contains more words than the other data.
+
+
+## Exploratory Analysis
+
+### 1. Preprocessing Data
+
+#### (a) Sampling of Data
+As the dataset is quite large, further analysis will be done using a sample of the data.
+
+```{r sample_size}
+sampleSize <- 0.005
+set.seed(1996)
+blogSample <- sample(blogData, length(blogData)*sampleSize)
+newsSample <- sample(newsData, length(newsData)*sampleSize)
+twitterSample <- sample(twitterData, length(twitterData)*sampleSize)
+dataSample <- c(blogSample, newsSample, twitterSample)
+length(dataSample)
+```
+
+Our sample dataset data file contains over 21,000 lines. Next step is to create
+a corpus for us to use in our analysis.
+
+```{r}
+# save the sample data into a text file.
+writeLines(dataSample, "./data/sampleData.txt")
+
+# clear up large variables to free up memory
+rm(blogData, newsData, twitterData, blogSample, newsSample, twitterSample, dataSample)
+
+```
+
+#### (b) Creating a Corpus from the Sample Dataset
+  
+Cleaning process include removing:
+ * non-ASCII character data 
+ * converting the remaining alpha characters to lower case
+ * punctuation marks, excess white space, numeric data
+ * removing URLs
+ * removing stop words
+ * removing profanity words
+ 
+Profanity Words list is from Luis von Ahn’s research group at CMU (http://www.cs.cmu.edu/~biglou/resources/).
+
+
+```{r message = FALSE}
+# load the sample data
+newCorpus <- readLines("./data/sampleData.txt")
+newCorpus <- VCorpus(VectorSource(newCorpus))
+newCorpus <- VCorpus(VectorSource(sapply(newCorpus, function(row) iconv(row, "latin1", "ASCII", sub=""))))
+
+# converting to lowercase
+newCorpus <- tm_map(newCorpus, content_transformer(tolower)) 
+
+# removing punctuation and numeric data
+newCorpus <- tm_map(newCorpus, content_transformer(removePunctuation), preserve_intra_word_dashes=TRUE) 
+newCorpus <- tm_map(newCorpus, removeNumbers) 
+
+## removing URLs 
+removeURL <- function(x) gsub("http[[:alnum:]]*", "", x)
+newCorpus <- tm_map(newCorpus, content_transformer(removeURL))
+
+# removing stop words
+newCorpus <- tm_map(newCorpus, removeWords, stopwords("english")) 
+
+# removing profanity words
+profanityWords <- readLines('./data/profanity_words.txt')
+newCorpus <- tm_map(newCorpus,removeWords, profanityWords)
+
+# removing excess white spaces
+newCorpus <- tm_map(newCorpus, stripWhitespace) 
+
+```
+
+#### The first 7 lines of content data from the created corpus.
+```{r echo = FALSE}
+## showing some lines of the corpus
+for (i in 1:7){
+print(newCorpus[[i]][["content"]])
+}
+```
+
+
+### 2. Tokenization and Analysis of Word and N-gram Frequencies
+
+We will tokenize the corpus to analyze the frequency of the words and n-grams in the dataset.
+
+#### (a) Word frequency in the sample dataset.
+```{r}
+# create a DocumentTermMatrix of the sample data
+dtm <- DocumentTermMatrix(newCorpus)
+
+# sort by frequency and create a dataframe of the terms and frequencies
+freq <- sort(colSums(as.matrix(dtm)), decreasing = TRUE)
+wordFreq <- data.frame(word = names(freq), freq = freq)
+
+
+# construct word cloud
+suppressWarnings (
+    wordcloud(words = wordFreq$word,
+              freq = wordFreq$freq,
+              min.freq = 1,
+              max.words = 100,
+              random.order = FALSE,
+              rot.per = 0.35, 
+              colors=brewer.pal(8, "Dark2"))
+)
+```
+
+
+From the word cloud, we can observe that the words with the highest frequencies are: said, will, just and one.
+
+Next, we can plot out the 20 most frequently found words.
+
+```{r}
+
+# plot the top 20 most frequent words
+g <- ggplot (wordFreq[1:20,], aes(x = reorder(word, -freq),
+                                  y = freq))
+g <- g + geom_bar(stat = "identity", fill = "skyblue")
+g <- g + geom_text(aes(label = freq), vjust = -0.20, size = 3)
+g <- g + xlab("")
+g <- g + ylab("Count")
+g <- g + theme(plot.title = element_text(size = 14, hjust = 0.5, vjust = 0.5),
+               axis.text.x = element_text(hjust = 0.5, vjust = 0.5, angle = 45),
+               axis.text.y = element_text(hjust = 0.5, vjust = 0.5))
+g <- g + ggtitle("20 Most Frequent Words")
+print(g)
+
+# remove variables no longer needed to free up memory
+rm(dtm, freq, wordFreq, g)
+```
+
+
+
+#### (b) Frequencies of bigrams in the dataset
+```{r}
+# tokenizer functions to create 2-grams tokens
+bigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 2, max = 2))
+
+# Document term matrix for 2-grams
+dtm2 <- DocumentTermMatrix(newCorpus, control = list(tokenize = bigramTokenizer))
+
+# sort by frequency and create a dataframe of the terms and frequencies
+freq2 <- sort(colSums(as.matrix(dtm2)), decreasing = TRUE)
+wordFreq2 <- data.frame(word = names(freq2), freq = freq2)
+
+# plot the top 20 most frequent bigrams
+g <- ggplot (wordFreq2[1:20,], aes(x = reorder(word, -freq),
+                                  y = freq))
+g <- g + geom_bar(stat = "identity", fill = "pink")
+g <- g + geom_text(aes(label = freq), vjust = -0.20, size = 3)
+g <- g + xlab("")
+g <- g + ylab("Count")
+g <- g + theme(plot.title = element_text(size = 14, hjust = 0.5, vjust = 0.5),
+               axis.text.x = element_text(hjust = 0.5, vjust = 0.5, angle = 45),
+               axis.text.y = element_text(hjust = 0.5, vjust = 0.5))
+g <- g + ggtitle("20 Most Frequent Bigrams")
+print(g)
+
+# remove variables no longer needed to free up memory
+rm(dtm2, freq2, wordFreq2, g)
+```
+
+
+
+#### (c) Frequencies of trigrams in the dataset
+```{r}
+# tokenizer functions to create 2-grams tokens
+trigramTokenizer <- function(x) NGramTokenizer(x, Weka_control(min = 3, max = 3))
+
+# Document term matrix for 3-grams
+dtm3 <- DocumentTermMatrix(newCorpus, control = list(tokenize = trigramTokenizer))
+
+# sort by frequency and create a dataframe of the terms and frequencies
+freq3 <- sort(colSums(as.matrix(dtm3)), decreasing = TRUE)
+wordFreq3 <- data.frame(word = names(freq3), freq = freq3)
+
+# plot the top 20 most frequent trigrams
+g <- ggplot (wordFreq3[1:20,], aes(x = reorder(word, -freq),
+                                  y = freq))
+g <- g + geom_bar(stat = "identity", fill = "lightgreen")
+g <- g + geom_text(aes(label = freq), vjust = -0.20, size = 3)
+g <- g + xlab("")
+g <- g + ylab("Count")
+g <- g + theme(plot.title = element_text(size = 14, hjust = 0.5, vjust = 0.5),
+               axis.text.x = element_text(hjust = 0.5, vjust = 0.5, angle = 45),
+               axis.text.y = element_text(hjust = 0.5, vjust = 0.5))
+g <- g + ggtitle("20 Most Frequent Trigrams")
+print(g)
+
+# remove variables no longer needed to free up memory
+rm(dtm3, freq3, wordFreq3, g)
+```
+
+
+## Next Steps
+
+The objective of the capstone project is to build a prediction model that will be deployed
+as a Shiny app. The user will input a word, the model will predict the next word that the 
+user wants to type.
+
+The predictive algorithm will be developed using an n-gram model with a
+word frequency lookup similar to that performed in the exploratory data analysis
+section of this report. 
+
+One of the issues encountered while performing this initial exploration of the dataset was the memory consumed by the objects needed for the analysis. Therefore, among the next steps, I will also be looking at ways to reduce the memory needed in order to be able to scale the data and application.
+
+----
