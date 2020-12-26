@@ -1,1 +1,1 @@
-# Capstone module for the John Hopkins University Data Science Specialization on Coursera.
+# Capstone module for the Johns Hopkins University Data Science Specialization on Coursera.
