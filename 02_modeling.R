@@ -12,12 +12,12 @@
 ## Training data: sampleData.txt
 ##
 ## Output Docs
-## 4-gram Model: WordPrediction/FourgramProb.csv
-## Trigram Model: WordPrediction/TrigramProb.csv
-## Bigram Model: WordPrediction/BigramProb.csv
-## Unigram Model: WordPrediction/UnigramProb.csv
+## Unigram Model: WordPrediction/unigramProb.csv
+## Bigram Model: WordPrediction/bigramProb.csv
+## Trigram Model: WordPrediction/trigramProb.csv
+## Quadgram Model: WordPrediction/quadgramProb.csv
 ##
-######################################################################################
+## =======================================================================================
 
 library(data.table)
 library(quanteda)

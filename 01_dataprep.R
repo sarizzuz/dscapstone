@@ -4,7 +4,8 @@
 ##    and test sets
 ## 2. Remove non-ASCII characters from text
 ## 3. Tokenizes sample text into sentences.
-## 4. Remove profanity words. Profanity Words list is from Luis von Ahn’s research group at CMU (http://www.cs.cmu.edu/~biglou/resources/).
+## 4. Remove profanity words. Profanity Words list is from Luis von Ahn’s research group 
+##    at CMU (http://www.cs.cmu.edu/~biglou/resources/).
 ## 
 ## Input Docs:
 ## Twitter text: final/en_US/en_US.twitter.txt
@@ -15,7 +16,8 @@
 ## Output Docs:
 ## Training data: sampleData.txt
 ## Test data: testData.txt
-
+##
+## =======================================================================================
 
 library(quanteda)
 library(dplyr)
