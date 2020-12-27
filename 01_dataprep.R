@@ -1,23 +1,11 @@
-## Data Prep - prepare sample data for creating n-gram models
-##
-## 1. Read in sample dataset based on a sample size and partition into training
-##    and test sets
-## 2. Remove non-ASCII characters from text
-## 3. Tokenizes sample text into sentences.
-## 4. Remove profanity words. Profanity Words list is from Luis von Ahn’s research group 
-##    at CMU (http://www.cs.cmu.edu/~biglou/resources/).
-## 
-## Input Docs:
-## Twitter text: final/en_US/en_US.twitter.txt
-## Blog text: final/en_US/en_US.blogs.txt
-## News text: final/en_US/en_US.news.txt
-## Profanity filter: swearWords.txt
-##
-## Output Docs:
-## Training data: sampleData.txt
-## Test data: testData.txt
-##
-## =======================================================================================
+# Data Prep - prepare sample data for creating n-gram models
+#
+# 1. Load datasets into R. 
+# 2. Generate sample datasets that will be split into training and test sets.
+# 3. Remove non-ASCII characters from text
+# 4. Save model corpus
+# 
+# =======================================================================================
 
 library(quanteda)
 library(dplyr)
@@ -26,7 +14,7 @@ library(dplyr)
 set.seed(2468)
 
 # Set sample size to be used
-sampleSize <- .15
+sampleSize <- .7
 
 # Set size of test set as a percentage of the total sample
 testSize <- .20
@@ -91,11 +79,6 @@ modelCorpus <- corpus(modelData)
 # Save Corpus
 saveRDS(modelCorpus, file = "modelCorpus.rds")
 
-
 # Clean up environment
 rm(modelData, modelCorpus)
-
-
-# Save sample dataset to file for later use
-#write.table(sampleSentences, "./data/sampleData.txt", col.names = FALSE, row.names = FALSE, quote=FALSE)
 

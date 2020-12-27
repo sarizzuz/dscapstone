@@ -1,23 +1,16 @@
-## Modeling - create n-gram models to be used for Word Prediction App
-##
-## 1. Clean up text - remove numbers, punctuation and symbols.
-## 2. Generate document frequency matrix for unigram, bigram, trigram and quadgram
-##    based on training data.
-## 3. Compute maximum likelihood estimate (MLE) for unigram, bigram, trigram and quadgram.
-## 4. Tune bigram, trigam and quadgram models to exclude ngrams that only occur once.
-## 5. Save the ngram models that will be used by the word prediction app
-##    
-## 
-## Input Docs:
-## Training data: sampleData.txt
-##
-## Output Docs
-## Unigram Model: WordPrediction/unigramProb.csv
-## Bigram Model: WordPrediction/bigramProb.csv
-## Trigram Model: WordPrediction/trigramProb.csv
-## Quadgram Model: WordPrediction/quadgramProb.csv
-##
-## =======================================================================================
+# Modeling - create n-gram models to be used for Word Prediction App
+#
+# 1. Clean up text - remove numbers, punctuation, symbols, etc., 
+#    and remove stopwords. 
+# 2. Remove profanity words. Profanity Words list is from Luis von Ahn’s research group 
+#    at CMU (http://www.cs.cmu.edu/~biglou/resources/).
+# 3. Generate document frequency matrix for unigram, bigram, trigram and quadgram
+#    based on training data.
+# 4. Compute maximum likelihood estimate (MLE) for unigram, bigram, trigram and quadgram.
+# 5. Remove ngrams that only occur once.
+# 6. Save the ngram models that will be used by the word prediction app.
+#    
+# =======================================================================================
 
 library(data.table)
 library(quanteda)
@@ -34,9 +27,8 @@ profanityWords <- readLines('./data/profanity_words.txt')
 
 # Create a document-feature matrix (dfm) 
 # Using the Quanteda's dfm(), which applies certain options by default, such as tolower()
-# and removing punctuation
 
-# Convert corpus to dfm
+# Function to convert corpus to dfm
 dfmNgram <- function(textObj, ngram) {
     outdfm <- textObj %>% 
         tokens(what = "word1",
@@ -53,7 +45,7 @@ dfmNgram <- function(textObj, ngram) {
     return(outdfm)
 }
 
-# Create dat table of terms and frequencies
+# Function to create data table of terms and frequencies
 ngramFreq <- function(rawDFM) {
     Freq <- colSums(rawDFM)
     return(data.table(term = names(Freq), freq = Freq))
@@ -69,7 +61,7 @@ bigramDFM <- dfmNgram(modelCorpus, 2)
 bigramFreq <- ngramFreq(bigramDFM)
 rm(bigramDFM)
 
-#Generate brigrams and their frequency 
+#Generate trigrams and their frequency 
 trigramDFM <- dfmNgram(modelCorpus, 3)
 trigramFreq <- ngramFreq(trigramDFM)
 rm(trigramDFM)
@@ -80,24 +72,18 @@ quadgramFreq <- ngramFreq(quadgramDFM)
 rm(quadgramDFM)
 
 # Divide quadgram into trigram and unigram
-#quadgramFreq$ngram <- rownames(quadgramFreq)
-#rownames(quadgramFreq) <- NULL
 quadgramFreq$term <- gsub("_", " ", quadgramFreq$term)
 quadgramFreq$Prev <- gsub("^((\\w+\\W+){2}\\w+).*$", "\\1", quadgramFreq$term)
 quadgramFreq$Next <-  gsub("^.* (\\w+|<e>)$", "\\1", quadgramFreq$term)
 format(object.size(quadgramFreq), units = "Mb")
 
 # Divide trigram into bigram and unigram
-#trigramFreq$ngram <- rownames(trigramFreq)
-#rownames(trigramFreq) <- NULL
 trigramFreq$term <- gsub("_", " ", trigramFreq$term)
 trigramFreq$Prev <- gsub("^((\\w+\\W+){1}\\w+).*$", "\\1", trigramFreq$term)
 trigramFreq$Next <-  gsub("^.* (\\w+|<e>)$", "\\1", trigramFreq$term)
 format(object.size(trigramFreq), units = "Mb")
 
 ## Extract Previous and Next words from Bigram
-#bigramFreq$ngram <- rownames(bigramFreq)
-#rownames(trigramFreq) <- NULL
 bigramFreq$term <- gsub("_", " ", bigramFreq$term)
 bigramFreq$Prev <- gsub("^(\\w+|<s>) .*$", "\\1", bigramFreq$term)
 bigramFreq$Next <-  gsub("^.* (\\w+|<e>)$", "\\1", bigramFreq$term)
@@ -114,7 +100,7 @@ format(object.size(quadgramProb), units = "Mb")
 quadgramProb <- filter(quadgramProb, QuadgramFreq > 1)
 
 # Write quadgram model to file
-write.csv(quadgramProb, "PredictNextWord/quadgramProb.csv", quote=FALSE)
+saveRDS(quadgramProb, "NextWordPredictor/quadgramProb.rds")
 
 # Clean Up
 rm(quadgramFreq, quadgramProb)
@@ -130,7 +116,7 @@ format(object.size(trigramProb), units = "Mb")
 trigramProb <- filter(trigramProb, TrigramFreq>1)
 
 # Write Trigram model to file
-write.csv(trigramProb, "PredictNextWord/trigramProb.csv", quote=FALSE)
+saveRDS(trigramProb, "NextWordPredictor/trigramProb.rds")
 
 # Clean Up
 rm(trigramFreq, trigramProb)
@@ -159,10 +145,10 @@ unigramProb$KNProb <- unigramProb$PrevCount/nrow(bigramProb)
 names(unigramProb) <- c( "Next", "Freq", "MLEProb", "PrevCount", "KNProb")
 
 #Write computed Bigram and Unigram probabilities into files
-write.csv(unigramProb, "PredictNextWord/unigramProb.csv", quote=FALSE)
-write.csv(bigramProb, "PredictNextWord/bigramProb.csv", quote=FALSE)
+saveRDS(unigramProb, "NextWordPredictor/unigramProb.rds")
+saveRDS(bigramProb, "NextWordPredictor/bigramProb.rds")
 
 #Clean Up
-rm(unigramProb, bigramProb, unigramFreq, prevWordCount)
+rm(unigramProb, unigramFreq, bigramProb, bigramFreq, prevWordCount)
 
 
