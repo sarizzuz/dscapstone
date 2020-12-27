@@ -6,12 +6,12 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
 ```
 
 ## Summary
 
-This is a milestone report for the Capstone Project of the John Hopkins University Data Science Specialization. The objective of this report is to:
+This is a milestone report for the Capstone Project of the Johns Hopkins University Data Science Specialization. The objective of this report is to:
 
 1. Demonstrate that the data has been downloaded and successfully loaded.
 2. Create a basic report of summary statistics about the data sets:
