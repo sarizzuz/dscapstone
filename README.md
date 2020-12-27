@@ -11,7 +11,6 @@ I went to the
 
 the keyboard presents three options for what the next word might be. For example, the three words might be gym, store, restaurant. In this capstone you will work on understanding and building predictive text models like those used by SwiftKey.
 
---
 
 ### Project
 This project covers: 
@@ -23,6 +22,7 @@ Work on the project involves:
 2. Cleaning and analyzing text data.
 3. Building and sampling from a predictive text model.
 4. Building a predictive text product, in a form of a Shiny app.
+
 
 ### Repository
 This repository contains the code for:
