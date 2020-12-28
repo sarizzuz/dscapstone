@@ -1,0 +1,34 @@
+---
+title: "Coursera Johns Hopkins Swiftkey Data Science Capstone: Technical References"
+output: html_document
+---
+
+### References
+
+#### Natural Language Processing resources:
+
++  [Text mining infrastucture in R]("http://www.jstatsoft.org/v25/i05/")
+
++  [CRAN Task View: Natural Language Processing]("http://cran.r-project.org/web/views/NaturalLanguageProcessing.html")
+
++  [Videos]("https://www.youtube.com/user/OpenCourseOnline/search?query=NLP") and [Slides]("https://web.stanford.edu/~jurafsky/NLPCourseraSlides.html") from Stanford Natural Language Processing course
+
++ [Stupid Back-Off](http://www.aclweb.org/anthology/D07-1090.pdf)
+
++ [Wikipedia: Natural Language Processing](https://en.wikipedia.org/wiki/Natural-language_processing)
+
++ [Algorithmia: Introduction to Natural Language Processing](https://blog.algorithmia.com/introduction-natural-language-processing-nlp/)
+
++ [Machine Learning Mastery: Natural Language Processing](https://machinelearningmastery.com/natural-language-processing/)
+
+
+#### Text Mining
+
+Here is a list of other text mining resources used:
+
++ [Wikipedia: Text Mining](https://en.wikipedia.org/wiki/Text_mining)
+
++ [Coursera: Text Mining and Analytics Course](https://www.coursera.org/learn/text-mining)
+
++ [statsoft.com: Text Mining](http://www.statsoft.com/Textbook/Text-Mining)
+

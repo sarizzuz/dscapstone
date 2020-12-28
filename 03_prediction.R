@@ -22,7 +22,7 @@ TrigramProb <- readRDS("./NextWordPredictor/trigramProb.rds")
 QuadgramProb <- readRDS("./NextWordPredictor/quadgramProb.rds")
 
 # Function for predicting next words using ngram models created in 02_modeling.R
-predictNextWord <- function(inputText, choices=NULL) {
+predictNextWord <- function(inputText, n, choices=NULL) {
     
     # Replicate training set pre-process for input text
     cleanText <- inputText %>% 
@@ -87,7 +87,7 @@ predictNextWord <- function(inputText, choices=NULL) {
         
         #Sort matches by MLE
         match <- arrange(match, desc(MLEProb))
-        
-        return(paste0(inputText, " ", head(match$Next, 1)))
+        return(match$Next[1:n])
+        #return(paste0(inputText, " ", head(match$Next, 1)))
     }
 }
