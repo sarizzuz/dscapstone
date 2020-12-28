@@ -1,19 +1,8 @@
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 #Initialize libraries
 library(shiny)
 library(quanteda)
 library(data.table)
 library(dplyr)
-library(wordcloud)
-library(RColorBrewer)
 
 # Read in ngram models
 UnigramProb <- readRDS("unigramProb.rds")
