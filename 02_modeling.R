@@ -130,13 +130,12 @@ format(object.size(bigramProb), units = "Mb")
 # Remove bigrams with frequency less than 2 occurences in the corpus
 bigramProb <- filter(bigramProb, BigramFreq>1)
 
-#Generate unigram probabilities using MLE
+# Generate unigram probabilities using MLE
 unigramProb <- select(unigramFreq, term, freq) %>% 
     mutate(MLEProb = freq/sum(unigramFreq$freq))
 
-# Calculate Kneser-Ney Continuation for Unigram
-
-#Using bigram Probabilities table, find the number of bigrams preceeding each word
+# Calculate Kneser-Ney Smoothing for Unigram
+# Using bigram Probabilities table, find the number of bigrams preceeding each word
 prevWordCount <- group_by(bigramProb, Next) %>% 
     summarize(PrevCount=n()) %>% 
     arrange(desc(PrevCount))
@@ -144,11 +143,11 @@ unigramProb <- left_join(unigramProb, prevWordCount, by=c("term"="Next"))
 unigramProb$KNProb <- unigramProb$PrevCount/nrow(bigramProb)
 names(unigramProb) <- c( "Next", "Freq", "MLEProb", "PrevCount", "KNProb")
 
-#Write computed Bigram and Unigram probabilities into files
+# Write computed Bigram and Unigram probabilities into files
 saveRDS(unigramProb, "NextWordPredictor/unigramProb.rds")
 saveRDS(bigramProb, "NextWordPredictor/bigramProb.rds")
 
-#Clean Up
+# Clean Up
 rm(unigramProb, unigramFreq, bigramProb, bigramFreq, prevWordCount)
 
 
