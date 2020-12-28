@@ -18,35 +18,38 @@ shinyUI(fluidPage(theme=shinytheme("superhero"),
                   #Side bar with instructions for using the app
                   sidebarLayout(
                       sidebarPanel(
-                          h4("Background:"),
-                          p("This application predicts the next word for a given phrase"),
+                          h4("App:"),
+                          p("This application predicts the next word for a given word or phrase"),
                           h4("How to use:"),
-                          p("On the ''Word Predictions'' tab, wait until you see the ''App is ready'' message then  
-          begin typing the phrase you want to get a prediction for. You may need to wait for 
-          10-20 seconds for the message to appear."),
-                          p("Your input phrase along with suggested next words will be shown below the textbox as 
-          you start typing."),
-                          p("Note that the application cannot provide predictions if you only input numbers or symbols. 
-          For example, ''24 hours'' is a valid input but ''24'' is not."),
-                          p("If you want to know more details about how this application was created, 
-          you may refer to the ''Application Details'' tab.")
+                          p("Wait until the Output Box shows ''App is ready'' then  
+          begin typing the phrase you want to get a prediction for in the Input Box."),
+                          p(),
+                          p("The Output Box will update to show the next predicted word."),
+                          br(),
+                          p("Note: Input which only have numbers or symbols are not accepted as a valid input."),
+                          br(),
+                          p("More information about the App can be found in the ''Application Details'' and ''References'' tabs.")
                       ),
                       
                       #Main panel with tabs containing the text prediction app and a separate tab for app details
                       mainPanel(
                           tabsetPanel(type = "tabs", 
-                                      tabPanel("Word Predictions",
+                                      tabPanel("App",
                                                br(),
-                                               textInput('words', label="Input Phrase", width = "100%"),
-                                               verbatimTextOutput('predictedsentence')
+                                               p("Input Box"),
+                                               textInput('words', label = NULL, placeholder = "Enter word or phrase here", width = "100%"),
+                                               br(),
+                                               p("Output Box"),
+                                               verbatimTextOutput('wordprediction')
+                                        
                                       ),
-                                      tabPanel("Application Details",
+                                      tabPanel("App Information",
                                                br(),
-                                               includeMarkdown("include.md")
+                                               includeMarkdown("NWP_about.Rmd")
                                       ),
-                                      tabPanel("About",
+                                      tabPanel("References",
                                                br(),
-                                               includeMarkdown("NWP_about.Rmd"))
+                                               includeMarkdown("NWP_references.Rmd"))
                           )
                       )
                   )

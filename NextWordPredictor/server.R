@@ -12,6 +12,8 @@ library(shiny)
 library(quanteda)
 library(data.table)
 library(dplyr)
+library(wordcloud)
+library(RColorBrewer)
 
 # Read in ngram models
 UnigramProb <- readRDS("unigramProb.rds")
@@ -20,7 +22,7 @@ TrigramProb <- readRDS("trigramProb.rds")
 QuadgramProb <- readRDS("quadgramProb.rds")
 
 #  Function for predicting next words using ngram models created in 02_modeling.R
-predictNextWord <- function(inputText, choices=NULL) {
+predictNextWord <- function(inputText, n, choices=NULL) {
     
     # Replicate training set pre-process for input text
     cleanText <- inputText %>% 
@@ -46,7 +48,7 @@ predictNextWord <- function(inputText, choices=NULL) {
         #Initialize empty data frame to hold the next word predictions
         match <- data.table(Next=character(), MLEProb=numeric())
         
-        #Attempt to match to a quadgram if sentence has 3 or more words using MLE 
+        # Attempt to match to a quadgram if sentence has 3 or more words using MLE 
         if (num >= 3) {
             lastTrigram <- paste0(txt[num-2], " ",
                                   txt[num-1], " ", 
@@ -54,7 +56,7 @@ predictNextWord <- function(inputText, choices=NULL) {
             match <- filter(QuadgramProb, lastTrigram==Trigram) %>% select(Next, MLEProb)
         }
         
-        #If sentence has only 2 words or if match has less than 5 results
+        # If sentence has only 2 words or if match has less than 5 results
         if (num >= 2 | nrow(match) < 5) {
             lastBigram <- paste0(txt[num-1], " ", 
                                  txt[num])
@@ -63,7 +65,7 @@ predictNextWord <- function(inputText, choices=NULL) {
             match <- filter(x, !(Next %in% match$Next)) %>% bind_rows(match)
         }
         
-        #If sentence has only 1 word or if match has less than 5 results
+        # If sentence has only 1 word or if match has less than 5 results
         if (num == 1 | nrow(match) < 5){
             lastWord <- txt[num]
             x <- filter(BigramProb, lastWord==Prev) %>% 
@@ -71,35 +73,31 @@ predictNextWord <- function(inputText, choices=NULL) {
             match <- filter(x, !(Next %in% match$Next)) %>% bind_rows(match)
         } 
         
-        #If Bigram match has failed, if match has less than 5 results
+        # If Bigram match has failed, if match has less than 5 results
         if (nrow(match) < 0){
             x <- top_n(UnigramProb, 5, KNProb) %>% select(Next, KNProb) %>% 
                 mutate(MLEProb=KNProb*0.4*0.4*0.4)
             match <- filter(x, !(Next %in% match$Next)) %>% bind_rows(match)
         } 
         
-        #filter top match based on choices provided
+        # Filter top match based on choices provided
         if (!is.null(choices)) {
             match <- filter(match, Next %in% choices)
         }
         
-        #Sort matches by MLE
+        # Sort matches by MLE
         match <- arrange(match, desc(MLEProb))
-        
-        return(paste0(inputText, " ", head(match$Next, 1)))
+        return(match$Next[1:n])
+        #return(paste0(inputText, " ", head(match$Next, 1)))
     }
 }
 
 # Update the UI with the output of next word prediction
 shinyServer(function(input, output) {
-    output$predictedsentence <- renderText({ 
-        text <- predictNextWord(input$words) 
-        paste(text, collapse = "\n")
+    output$wordprediction <- renderText({ 
+        text <- predictNextWord(input$words, 1) 
+        paste0(input$words, " ", text)
+
     })
     
-    output$wordcloud <- renderPlot({
-        par(mfrow=c(1,3))
-        wordcloud(top3$Trigram, top3$TrigramFreq, scale=c(3,.3), colors=(brewer.pal(8, 'Dark2')))
-        wordcloud(top2$Bigram, top2$BigramFreq, scale=c(3,.3), colors=(brewer.pal(8, 'Dark2')))   
-    })
 })
