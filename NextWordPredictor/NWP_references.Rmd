@@ -13,7 +13,7 @@ output: html_document
 
 +  [Videos]("https://www.youtube.com/user/OpenCourseOnline/search?query=NLP") and [Slides]("https://web.stanford.edu/~jurafsky/NLPCourseraSlides.html") from Stanford Natural Language Processing course
 
-+ [Stupid Back-Off](http://www.aclweb.org/anthology/D07-1090.pdf)
++ [Stupid Back-Off Algorithm](http://www.aclweb.org/anthology/D07-1090.pdf)
 
 + [Wikipedia: Natural Language Processing](https://en.wikipedia.org/wiki/Natural-language_processing)
 
@@ -23,8 +23,6 @@ output: html_document
 
 
 #### Text Mining
-
-Here is a list of other text mining resources used:
 
 + [Wikipedia: Text Mining](https://en.wikipedia.org/wiki/Text_mining)
 

@@ -19,7 +19,7 @@ The n-grams models created from samples of twitter, blog and news text taken fro
 
 #### Additional documentation
 
-Presentation slides fo this application may be found in: http://rpubs.com/sarizzuz/nextwordpredictor
+Presentation slides fo this application may be found in: https://rpubs.com/sarizzuz/NWPpresentation
 
 Application code for this is available in github: 
 

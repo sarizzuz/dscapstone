@@ -21,7 +21,8 @@ Work on the project involves:
 1. Analyzing a large corpus of text documents to discover the structure in the data and how words are put together. 
 2. Cleaning and analyzing text data.
 3. Building and sampling from a predictive text model.
-4. Building a predictive text product, in a form of a Shiny app.
+4. Building a predictive text product, in a form of a [Shiny](https://sarizzuz.shinyapps.io/NextWordPredictor/) app.
+5. Creating a [R Presentations](https://rpubs.com/sarizzuz/NWPpresentation) for the app.
 
 
 ### Repository
