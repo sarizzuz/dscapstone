@@ -14,7 +14,7 @@ the keyboard presents three options for what the next word might be. For example
 
 ### Project
 This project covers: 
-1. Analysis of text data 
+1. Text Mining and analysis of text data.
 2. Natural language processing. 
 
 Work on the project involves:
