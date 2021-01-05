@@ -14,8 +14,8 @@ the keyboard presents three options for what the next word might be. For example
 
 ### Project
 This project covers: 
-1. Text Mining and analysis of text data.
-2. Natural language processing. 
+1. Text Mining and Analysis of Text Data.
+2. Natural Language Processing. 
 
 Work on the project involves:
 1. Analyzing a large corpus of text documents to discover the structure in the data and how words are put together. 
