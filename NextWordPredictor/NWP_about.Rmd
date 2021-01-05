@@ -25,7 +25,7 @@ Application code for this is available in github:
 
 1. Shiny Application code: https://github.com/sarizzuz/dscapstone/tree/main/NextWordPredictor
 
-2. N-gram Modeling code: https://github.com/sarizzuz/dscapstone
+2. N-gram Modeling code: https://github.com/sarizzuz/nextwordpredictor
 
 The corpus text can be downloaded here:  https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip
 
