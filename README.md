@@ -9,7 +9,7 @@ Around the world, people are spending an increasing amount of time on their mobi
 
 I went to the
 
-the keyboard presents three options for what the next word might be. For example, the three words might be gym, store, restaurant. In this capstone you will work on understanding and building predictive text models like those used by SwiftKey.
+the keyboard presents three options for what the next word might be. For example, the three words might be gym, store, restaurant. In this capstone we will work on understanding and building predictive text models like those used by SwiftKey.
 
 
 ### Project
